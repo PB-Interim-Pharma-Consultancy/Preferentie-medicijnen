@@ -6,100 +6,199 @@
 <title>Is mijn medicijn preferent?</title>
 <style>
   :root {
-    --border: #ddd;
-    --muted: #666;
-    --bg-card: #fafafa;
-    --success-bg: #e6f4ea;
-    --success-text: #1e7b34;
-    --danger-bg: #fdecea;
-    --danger-text: #a53125;
+    --border: #e2e5e4;
+    --muted: #667;
+    --bg-card: #fff;
+    --bg-page: #f4f6f5;
+    --accent: #0f3d3d;
+    --accent-text: #ffffff;
+    --ok-bg: #e6f4ea;
+    --ok-text: #1e7b34;
+    --neutral-bg: #eef0ef;
+    --neutral-text: #55605c;
+    --warn-bg: #fdecea;
+    --warn-text: #a53125;
   }
   * { box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: var(--bg-page);
     max-width: 720px;
     margin: 0 auto;
     padding: 24px 16px 64px;
-    color: #1a1a1a;
+    color: #17201d;
     line-height: 1.5;
   }
   h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
   p.intro { color: var(--muted); font-size: 14px; margin-top: 0; margin-bottom: 24px; }
-  .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-  .row { display: flex; gap: 10px; }
+
+  .step {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+  }
+  .step-label {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .step-num { color: var(--accent); font-weight: 700; }
+  .step-help { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
   input, select {
     width: 100%;
-    padding: 10px 12px;
+    padding: 12px 14px;
     font-size: 15px;
     border: 1px solid var(--border);
     border-radius: 8px;
+    background: #fff;
   }
-  #status { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
-  #results { display: flex; flex-direction: column; gap: 10px; }
+  button#go {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-text);
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  button#go:hover { opacity: 0.92; }
+
+  #status { font-size: 13px; color: var(--muted); margin: 4px 0 16px; }
+  #results { display: flex; flex-direction: column; gap: 14px; }
+
   .card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 14px 16px;
+    overflow: hidden;
   }
   .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 8px;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
   }
-  .card-title { font-weight: 600; font-size: 15px; margin: 0; }
-  .card-sub { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
+  .card-title { font-weight: 700; font-size: 17px; margin: 0; }
+  .card-body { padding: 0 20px 18px; }
   .badge {
-    font-size: 12px;
-    padding: 3px 10px;
-    border-radius: 6px;
-    white-space: nowrap;
-  }
-  .badge-ok { background: var(--success-bg); color: var(--success-text); }
-  .badge-no { background: var(--danger-bg); color: var(--danger-text); }
-  .entry {
-    display: flex;
-    justify-content: space-between;
     font-size: 13px;
-    padding: 5px 0;
-    border-top: 1px solid var(--border);
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    border: 1px solid transparent;
   }
-  .entry span:last-child { color: var(--muted); }
-  footer { margin-top: 40px; font-size: 12px; color: var(--muted); }
+  .badge-ok    { background: var(--ok-bg); color: var(--ok-text); border-color: #c5e6cf; }
+  .badge-none  { background: var(--neutral-bg); color: var(--neutral-text); border-color: var(--border); }
+  .badge-warn  { background: var(--warn-bg); color: var(--warn-text); border-color: #f5cfc9; }
+
+  .sentence { font-size: 15px; margin: 0; }
+  .sentence b { font-weight: 700; }
+
+  .lev-box {
+    margin-top: 12px;
+    border-left: 3px solid var(--accent);
+    background: #f6f9f8;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+  }
+  .lev-box + .lev-box { margin-top: 8px; }
+  .lev-name { font-weight: 700; font-size: 15px; margin: 0 0 2px; }
+  .lev-meta { font-size: 13px; color: var(--muted); margin: 0; }
+
+  footer { margin-top: 32px; font-size: 12px; color: var(--muted); }
 </style>
 </head>
 <body>
 
 <h1>Is mijn medicijn preferent?</h1>
 <p class="intro">
-  Zoek op werkzame stof en zie welk merk/fabrikant je zorgverzekeraar als
-  voorkeursmiddel (preferent) heeft aangewezen. Vul optioneel je eigen merk
-  in om te checken of dat overeenkomt.
+  Check per zorgverzekeraar welk merk als voorkeursmiddel (preferent) is
+  aangewezen voor het medicijn dat u zoekt.
 </p>
 
-<div class="controls">
-  <input id="q" type="text" placeholder="Werkzame stof, bijv. Metoprolol" autofocus>
-  <div class="row">
-    <select id="verz"><option value="">Alle verzekeraars</option></select>
-    <input id="merk" type="text" placeholder="Jouw merk/fabrikant (optioneel)">
-  </div>
+<div class="step">
+  <div class="step-label"><span class="step-num">1.</span> Welk medicijn zoekt u?</div>
+  <p class="step-help">Bijvoorbeeld "Metoprolol", "Metoprolol 25" of "Metoprolol 25 mg" — spaties en "mg" maken niet uit.</p>
+  <input id="q" type="text" placeholder="bijv. Metoprolol 25 mg" autofocus>
 </div>
 
-<div id="status">Data wordt geladen…</div>
+<div class="step">
+  <div class="step-label"><span class="step-num">2.</span> Bij welke zorgverzekeraar wilt u dit checken?</div>
+  <p class="step-help">Laat op "alle verzekeraars" staan om ze allemaal tegelijk te zien.</p>
+  <select id="verz"><option value="">Alle verzekeraars</option></select>
+</div>
+
+<div class="step">
+  <div class="step-label"><span class="step-num">3.</span> Welk merk of welke fabrikant staat op uw doosje?</div>
+  <p class="step-help">Bijvoorbeeld "Sandoz" of "Teva". Weet u het niet? Laat dit veld dan leeg — u ziet dan welk merk preferent is.</p>
+  <input id="merk" type="text" placeholder="Fabrikant (optioneel)">
+</div>
+
+<button id="go">Controleer vergoeding</button>
+
+<div id="status"></div>
 <div id="results"></div>
 
 <footer>
-  Data uit data.json, samengesteld uit de officiële lijsten van de
-  deelnemende verzekeraars. Controleer bij twijfel altijd de officiële
-  website van je verzekeraar of met je apotheek.
+  Data samengesteld uit de officiële lijsten van de deelnemende
+  verzekeraars. Controleer bij twijfel altijd de officiële website van uw
+  verzekeraar of met uw apotheek.
 </footer>
 
 <script>
 let DATA = [];
 
 function norm(s) { return (s || '').toString().trim().toLowerCase(); }
+
+// Verwijdert alle spaties en maakt lowercase, zodat "25 mg" en "25mg" gelijk worden.
+function tight(s) { return norm(s).replace(/\s+/g, ''); }
+
+// Haalt uit een vrije tekst (zoekopdracht of sterkte-veld) alle nummer+eenheid
+// tokens, bijv. "TABLET 80MG" -> ["80mg"], "0,25 ug" -> ["0,25ug"].
+function strengthTokens(text) {
+  const matches = norm(text).match(/\d+(?:[.,]\d+)?\s*(?:mg|mcg|ug|µg|g|ml|ie|iu)?/g) || [];
+  return matches.map(t => t.replace(/\s+/g, '')).filter(Boolean);
+}
+
+// Splitst de zoekopdracht in een naamdeel en een sterktedeel, op basis van
+// het eerste cijfer dat voorkomt: "metoprolol 25 mg" -> ["metoprolol", "25mg"]
+function splitQuery(query) {
+  const idx = query.search(/\d/);
+  if (idx === -1) return { name: query.trim(), strength: '' };
+  return {
+    name: query.slice(0, idx).trim(),
+    strength: tight(query.slice(idx)),
+  };
+}
+
+function strengthText(record) {
+  return record.sterkte || record.artikelnaam || record.etiketnaam || '';
+}
+
+function matchesStrength(record, queryStrength) {
+  if (!queryStrength) return true;
+  const tokens = strengthTokens(strengthText(record));
+  return tokens.some(t => t.startsWith(queryStrength));
+}
+
+function normalizeDate(s) {
+  if (!s) return '';
+  s = s.trim();
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  m = s.match(/^(\d{1,2})[.\-](\d{1,2})[.\-](\d{4})$/);
+  if (m) return `${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}-${m[3]}`;
+  return s;
+}
 
 async function loadData() {
   const statusEl = document.getElementById('status');
@@ -116,69 +215,96 @@ async function loadData() {
       opt.textContent = v;
       verzSelect.appendChild(opt);
     });
-
     statusEl.textContent = DATA.length.toLocaleString('nl-NL') + ' regels geladen uit ' + verzekeraars.length + ' verzekeraars.';
-    render();
   } catch (e) {
     statusEl.textContent = 'Kon data.json niet laden. Staat het bestand naast index.html? (' + e.message + ')';
   }
 }
 
-function render() {
-  const q = norm(document.getElementById('q').value);
-  const verz = document.getElementById('verz').value;
+function run() {
+  const rawQuery = document.getElementById('q').value;
+  const verzFilter = document.getElementById('verz').value;
   const merk = norm(document.getElementById('merk').value);
   const box = document.getElementById('results');
   box.innerHTML = '';
 
-  if (!q) {
-    box.innerHTML = '<p style="color:var(--muted); font-size:14px;">Typ een werkzame stof om te zoeken.</p>';
+  const { name, strength } = splitQuery(rawQuery);
+  if (!name) {
+    box.innerHTML = '<p style="color:var(--muted); font-size:14px;">Vul bij stap 1 een medicijnnaam in.</p>';
     return;
   }
 
-  let rows = DATA.filter(r => norm(r.werkzame_stof).includes(q));
-  if (verz) rows = rows.filter(r => r.verzekeraar === verz);
+  const nameNorm = norm(name);
+  const matches = DATA.filter(r => norm(r.werkzame_stof).includes(nameNorm) && matchesStrength(r, strength));
 
-  if (rows.length === 0) {
-    box.innerHTML = '<p style="color:var(--muted); font-size:14px;">Geen resultaten gevonden.</p>';
-    return;
+  const allVerzekeraars = verzFilter
+    ? [verzFilter]
+    : [...new Set(DATA.map(r => r.verzekeraar))].sort();
+
+  // Mooi label voor de gevonden stof + sterkte, voor in de zinnen.
+  let displayStof = name;
+  let displaySterkte = '';
+  let displayRoute = '';
+  if (matches.length) {
+    displayStof = matches[0].werkzame_stof;
+    displaySterkte = matches[0].sterkte || '';
+    displayRoute = matches[0].toedieningsweg || '';
   }
+  const label = [displayStof, displaySterkte].filter(Boolean).join(' ') + (displayRoute ? ` (${displayRoute})` : '');
 
-  const groups = {};
-  rows.forEach(r => {
-    const key = r.verzekeraar + '|' + norm(r.werkzame_stof) + '|' + norm(r.sterkte || '');
-    if (!groups[key]) {
-      groups[key] = { verzekeraar: r.verzekeraar, stof: r.werkzame_stof, sterkte: r.sterkte || '', entries: [] };
-    }
-    groups[key].entries.push(r);
-  });
-
-  Object.values(groups).slice(0, 200).forEach(g => {
-    const match = merk ? g.entries.some(e => norm(e.leverancier).includes(merk)) : null;
+  allVerzekeraars.forEach(verz => {
+    const rows = matches.filter(r => r.verzekeraar === verz);
     const card = document.createElement('div');
     card.className = 'card';
 
-    let badge = '';
-    if (match === true) badge = '<span class="badge badge-ok">jouw merk is preferent</span>';
-    else if (match === false) badge = '<span class="badge badge-no">jouw merk niet in deze lijst</span>';
+    if (rows.length === 0) {
+      card.innerHTML = `
+        <div class="card-header">
+          <p class="card-title">${verz}</p>
+          <span class="badge badge-none">Geen preferentie</span>
+        </div>
+        <div class="card-body">
+          <p class="sentence">Voor <b>${label || name}</b> staat bij ${verz} geen voorkeursaanwijzing op de lijst. Er is dus geen specifiek merk verplicht op basis van deze lijst.</p>
+        </div>`;
+      box.appendChild(card);
+      return;
+    }
 
-    const entriesHtml = g.entries.map(e =>
-      '<div class="entry"><span>' + (e.leverancier || '') + '</span><span>ZI ' + (e.zi_nummer || '') + '</span></div>'
-    ).join('');
+    const userMatch = merk ? rows.some(r => norm(r.leverancier).includes(merk)) : null;
+    let badge, intro;
+    if (userMatch === true) {
+      badge = '<span class="badge badge-ok">Uw merk is preferent</span>';
+      intro = `Goed nieuws: uw merk staat bij ${verz} op de voorkeurslijst.`;
+    } else if (userMatch === false) {
+      badge = '<span class="badge badge-warn">Ander merk preferent</span>';
+      intro = `Bij ${verz} is uw merk niet het preferente merk. Dit is het merk dat wel preferent is:`;
+    } else {
+      badge = '<span class="badge badge-ok">Preferent merk bekend</span>';
+      intro = `Bij ${verz} is dit het preferente merk:`;
+    }
 
-    card.innerHTML =
-      '<div class="card-header">' +
-        '<div><p class="card-title">' + g.stof + ' ' + g.sterkte + '</p>' +
-        '<p class="card-sub">' + g.verzekeraar + '</p></div>' +
-        badge +
-      '</div>' + entriesHtml;
+    const levBoxes = rows.map(r => `
+      <div class="lev-box">
+        <p class="lev-name">${r.leverancier || 'onbekend'}</p>
+        <p class="lev-meta">ZI-nummer${r.zi_nummer && r.zi_nummer.includes('/') ? 's' : ''}: ${r.zi_nummer || '-'} · geldig ${normalizeDate(r.start)} t/m ${normalizeDate(r.eind)}</p>
+      </div>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="card-header">
+        <p class="card-title">${verz}</p>
+        ${badge}
+      </div>
+      <div class="card-body">
+        <p class="sentence">${intro}</p>
+        ${levBoxes}
+      </div>`;
     box.appendChild(card);
   });
 }
 
-document.getElementById('q').addEventListener('input', render);
-document.getElementById('verz').addEventListener('change', render);
-document.getElementById('merk').addEventListener('input', render);
+document.getElementById('go').addEventListener('click', run);
+document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
 
 loadData();
 </script>
