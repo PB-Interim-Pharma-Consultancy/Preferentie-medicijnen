@@ -334,12 +334,24 @@ function run() {
       else if (userMatch === false) intro = `Uw merk is hiervoor niet preferent. Dit is het preferente merk:`;
       else intro = `Preferent merk:`;
 
-      const levBoxes = rows.map(r => {
-        const displayLev = canonicalLeverancier(r.leverancier);
+      // Meerdere regels van dezelfde fabrikant (bv. verschillende
+      // verpakkingsgroottes met elk hun eigen ZI-nummer) samenvoegen tot
+      // één regel, zodat hetzelfde merk niet meerdere keren verschijnt.
+      const byLeverancier = {};
+      rows.forEach(r => {
+        const key = canonicalLeverancier(r.leverancier);
+        if (!byLeverancier[key]) {
+          byLeverancier[key] = { zis: new Set(), start: r.start, eind: r.eind };
+        }
+        if (r.zi_nummer) byLeverancier[key].zis.add(r.zi_nummer);
+      });
+
+      const levBoxes = Object.entries(byLeverancier).map(([displayLev, info]) => {
+        const zis = [...info.zis].join(', ') || '-';
         return `
         <div class="lev-box">
           <p class="lev-name">${displayLev}</p>
-          <p class="lev-meta">ZI-nummer${r.zi_nummer && r.zi_nummer.includes('/') ? 's' : ''}: ${r.zi_nummer || '-'} · geldig ${normalizeDate(r.start)} t/m ${normalizeDate(r.eind)}</p>
+          <p class="lev-meta">ZI-nummer${info.zis.size > 1 ? 's' : ''}: ${zis} · geldig ${normalizeDate(info.start)} t/m ${normalizeDate(info.eind)}</p>
         </div>`;
       }).join('');
 
