@@ -259,6 +259,11 @@ async function loadData() {
 }
 
 function medName(r) {
+  // DSW en VGZ hebben geen losse sterkte-kolom; daar staat de volledige
+  // productomschrijving (incl. sterkte en vorm) al in etiketnaam/artikelnaam.
+  if (r.verzekeraar === 'DSW' && r.etiketnaam) return r.etiketnaam;
+  if (r.verzekeraar === 'VGZ' && r.artikelnaam) return r.artikelnaam;
+  // CZ, Menzis en Zilveren Kruis: werkzame stof + sterkte.
   return [r.werkzame_stof, r.sterkte].filter(Boolean).join(' ') + (r.toedieningsweg ? ` (${r.toedieningsweg})` : '');
 }
 
